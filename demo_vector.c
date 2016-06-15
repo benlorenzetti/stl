@@ -26,7 +26,7 @@ int main() {
 //veclor japanese_cities = VECLOR(city, NULL, NULL);
 
   char name[1000];
-  city c;
+  city c = {name, 0};
   strcpy(c.name, "Tokyo");
   c.population = 13510000;
   vector.push_back(&japanese_cities, &c);

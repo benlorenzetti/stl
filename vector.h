@@ -1,5 +1,5 @@
-#ifndef VECLOR_H
-#define VECLOR_H
+#ifndef VECTOR_H
+#define VECTOR_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -117,6 +117,7 @@ int lor_vector_insert (lor_vector* vec, int pos, const void* val) {
 }
 
 int lor_vector_push_back (lor_vector* vec, const void* val) {
+printf ("entering push_back()\n");
   // Ensure there is allocated space available for the new value
   if (!lor_vector_auto_reserve(vec))
     return LOR_VECTOR_ALLOCATION_FAILURE;
@@ -141,6 +142,7 @@ void* lor_vector_at (const lor_vector* vec, int n) {
 }
 
 void* lor_vector_auto_reserve (lor_vector* dest) {
+printf ("entering auto_reserve()...");
   // By default, assume that no resizing or relocation will be done-----------|
   int new_alloc_len = dest->alloc_len;
   void* new_alloc_ptr = dest->begin;
@@ -149,6 +151,7 @@ void* lor_vector_auto_reserve (lor_vector* dest) {
   if (array_len == abs(dest->alloc_len))  // note that negative alloc_size
   {                          // indicates it should not be automatically shrunk
     new_alloc_len = LOR_VECTOR_A * abs(dest->alloc_len) + LOR_VECTOR_B;
+printf ("grow to new len = %d...", new_alloc_len);
     new_alloc_ptr = realloc(dest->begin, new_alloc_len * dest->t_size);
     if (!new_alloc_ptr) // realloc() failure does not disturb original memory
       return NULL;// so return NULL but dont overwrite dest->begin/alloc_size 
@@ -158,6 +161,7 @@ void* lor_vector_auto_reserve (lor_vector* dest) {
   else if (array_len < (dest->alloc_len - LOR_VECTOR_B) / LOR_VECTOR_A)
   {
     new_alloc_len = (dest->alloc_len - LOR_VECTOR_B) / LOR_VECTOR_A;
+printf ("shrink to new len = %d...", new_alloc_len);
     new_alloc_ptr = realloc(dest->begin, new_alloc_len * dest->t_size);
     if (!new_alloc_ptr)
       return dest->begin; // failing to shrink the array isnt really a failure
@@ -167,7 +171,10 @@ void* lor_vector_auto_reserve (lor_vector* dest) {
   {}
   // Save changes and return pointer to the current location of the data------|
   dest->alloc_len = new_alloc_len;
-  return (dest->begin = new_alloc_ptr);
+  dest->begin = new_alloc_ptr;
+  dest->end = new_alloc_ptr + array_len * dest->t_size;
+printf("success.\n");
+  return dest->begin;
 }
 
 #endif
