@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "veclor.h"
+#include "vector.h"
 
 typedef struct city_s {
   char* name;
@@ -22,20 +22,20 @@ void godzilla(city* dest) { // godzilla, aka city destructor
 }
 
 int main() {
-  veclor japanese_cities = VECLOR(city, city_copy_constructor, godzilla);
+  lor_vector japanese_cities = LOR_VECTOR(city, city_copy_constructor, godzilla);
 //veclor japanese_cities = VECLOR(city, NULL, NULL);
 
   char name[1000];
   city c;
-  strcpy (c.name, "Tokyo");
+  strcpy(c.name, "Tokyo");
   c.population = 13510000;
-  veclor_push_back (&japanese_cities, &c);
-  strcpy (c.name, "Kyoto");
+  vector.push_back(&japanese_cities, &c);
+  strcpy(c.name, "Kyoto");
   c.population = 1474000;
-  veclor_push_back (&japanese_cities, &c);
+  vector.push_back(&japanese_cities, &c);
 
   int i = 0;
   city* city_ptr;
-  while (city_ptr = (city*) veclor_at(&japanese_cities, i++))
+  while (city_ptr = (city*) vector.at(&japanese_cities, i++))
     printf("%s has population %d\n", city_ptr->name, city_ptr->population);
 }
