@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define LOR_VECTOR_NAMESPACE vector
 #include "vector.h"
 
 typedef struct city_s {

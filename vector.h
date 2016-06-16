@@ -1,30 +1,95 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef LOR_VECTOR_H
+#define LOR_VECTOR_H
 
-#include <stdlib.h>
-#include <string.h>
+/*  Copyright (c) 2016 Ben Lorenzetti
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
+ *  copy of this software and associated documentation files (the "Software"),
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *  DEALINGS IN THE SOFTWARE.
+ */
+
+/*  This header file is a part of a generic container library for doing
+ *  "object-oriented" programming in C. A lor_vector stores metadata about, and
+ *  points to an array which is automatically resized as needed by lor_vector
+ *  functions. Stuctures of any size may be stored and a copy constructor and
+ *  destructor can be registered with the container. The functionality is
+ *  like C++'s standard vector class.
+ *
+ *  The following return codes are defined for functions which return an
+ *  integer. If you write your own copy constructor functions, they should
+ *  return LOR_VECTOR_EXIT_SUCCESS or an error code of your own choosing
+ *  outside the range of the library error codes defined here. 
+ */
 
 #define LOR_VECTOR_EXIT_SUCCESS 0
 #define LOR_VECTOR_ALLOCATION_FAILURE 1
 
-#define LOR_VECTOR_DOT_NAMESPACE vector
+/*  To avoid namespace conflicts with outside code, all functions, structures,
+ *  and typedefs declared in this library are prefixed by "lor_vector_" and 
+ *  all macros by "LOR_VECTOR_". Functions can be called using their full
+ *  prefix name or through a namespace struct provided for shortening code.
+ *  The default namespace is "lor_vector" but this can be changed by defining
+ *  LOR_VECTOR_NAMESPACE in your code.
+ *  
+ *  For example, the push back function could be called the following ways:
+ *
+ *    1.   lor_vector_push_back();
+ *
+ *    2.   lor_vector.push_back();
+ *
+ *    3.   #define LOR_VECTOR_NAMESPACE vec
+ *         ...
+ *         vec.push_back();
+ */
+
+#define LOR_VECTOR_DOT_NAMESPACE lor_vector
 #ifdef LOR_VECTOR_NAMESPACE
   #undef  LOR_VECTOR_DOT_NAMESPACE
   #define LOR_VECTOR_DOT_NAMESPACE LOR_VECTOR_NAMESPACE
 #endif
 
-/*   Constants A and B define the reservation policy for the automatic memory
- * managenment. When the current reserved space x is insufficient, the array
- * is reallocated to a new memory block of size
+struct lor_vector_namespace_s;
+extern struct lor_vector_namespace_s const LOR_VECTOR_DOT_NAMESPACE;
+
+/*  Constants A and B define the reservation policy for the automatic memory
+ *  managenment. When the current reserved space x is insufficient, the array
+ *  is reallocated to a new memory block of size
+ *
  *                           x' = A*x + B
- * Reserved space will also shrink according to: x' = (x - B) / A.
+ *
+ *  Reserved space will also shrink according to: x' = (x - B) / A.
  * 
  *   Valid ranges for A and B are:
  *     {A e Real: A >= 1}  (to ensure growth)
  *     {B e Natural: B >= 1}  (to ensure growth for small x)
 */
+
 #define LOR_VECTOR_A 1.3
 #define LOR_VECTOR_B 1
+
+/*  The type "lor_vetlor_copy_f" is defined for a "pointer to a function with a
+ *  generic dest and src pointer parameters and integer return value".
+ *  Functions cast to this type can be registered as the copy constructor to be
+ *  used by any container. And a similar type for destructors.
+*/
+
+typedef int (*lor_vector_copy_f) (void*, const void*); 
+typedef void (*lor_vector_dest_f) (void*);
+
 
 #define LOR_VECTOR(template_type, constructor, destructor) \
 {                                                          \
@@ -35,14 +100,6 @@
   NULL,                                                    \
   NULL                                                     \
 }
-
-/*   Create the type "lor_vetlor_copy_f" for a "pointer to a function with a
- * generic dest and src pointer parameters and integer return value".
- * Functions cast to this type can be registered as the copy constructor to
- * be used by any "GCL" container. And a similar type for destructors.
-*/
-typedef int (*lor_vector_copy_f) (void*, const void*); 
-typedef void (*lor_vector_dest_f) (void*);
 
 typedef struct lor_vector_s {
   int t_size;
@@ -60,17 +117,15 @@ int lor_vector_push_back (lor_vector*, const void*);
 int lor_vector_insert (lor_vector*, int, const void*);
 int lor_vector_size (const lor_vector*);
 
-typedef struct lor_vector_namespace_s {
+struct lor_vector_namespace_s {
   void* (*const auto_reserve)(lor_vector *);
   void* (*const at)(const lor_vector*, int);
   int (*const push_back)(lor_vector*, const void*);
   int (*const insert)(lor_vector*, int, const void*);
   int (*const size)(const lor_vector*);
-} lor_vector_namespace;
+};
 
-extern lor_vector_namespace const LOR_VECTOR_DOT_NAMESPACE;
-
-lor_vector_namespace const LOR_VECTOR_DOT_NAMESPACE = {
+struct lor_vector_namespace_s const LOR_VECTOR_DOT_NAMESPACE ={
   lor_vector_auto_reserve,
   lor_vector_at,
   lor_vector_push_back,
@@ -78,6 +133,9 @@ lor_vector_namespace const LOR_VECTOR_DOT_NAMESPACE = {
 };
 
 /* Begin the Implentation File */
+
+#include <stdlib.h>
+#include <string.h>
 
 int lor_vector_size (const lor_vector* vec) {
   return (vec->end - vec->begin) / vec->t_size;
