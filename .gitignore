@@ -1,6 +1,5 @@
 # Ignore Temporary and Text Editor Swap Files
 *.swp
-<<<<<<< HEAD
 *~
 
 # Ignore Object Files and Executables
@@ -8,12 +7,12 @@
 *.obj
 *.exe
 *.out
-=======
 
 # Ignore Object Files and Executables
 *.o
+*.obj
+*.out
 *.exe
->>>>>>> fbc5679272f2fca67ac01dd1bf25471c7e61c82b
 
 # Core latex/pdflatex auxiliary files:
 *.aux
