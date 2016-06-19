@@ -3,11 +3,7 @@
 #include <string.h>
 
 #define LOR_VECTOR_NAMESPACE vector
-<<<<<<< HEAD
 #include "lor_vector.h"
-=======
-#include "vector.h"
->>>>>>> fbc5679272f2fca67ac01dd1bf25471c7e61c82b
 
 typedef struct city_s {
   char* name;
@@ -29,10 +25,7 @@ void godzilla(city* dest) { // godzilla, aka city destructor
 
 int main() {
   lor_vector japanese_cities = LOR_VECTOR(city, city_copy_constructor, godzilla);
-<<<<<<< HEAD
-=======
 //veclor japanese_cities = VECLOR(city, NULL, NULL);
->>>>>>> fbc5679272f2fca67ac01dd1bf25471c7e61c82b
 
   char name[1000];
   city c = {name, 0};
