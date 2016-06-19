@@ -107,8 +107,8 @@ typedef struct lor_vector_s {
   lor_vector_dest_f destructor;
   int alloc_len; // negative alloc_len indicates an explicit reservation that
         // should not be shrunk by the auto_reserve() function
-  void* begin;
-  void* end;
+  char* begin;
+  char* end;
 } lor_vector;
 
 void* lor_vector_auto_reserve (lor_vector *);
@@ -148,7 +148,7 @@ int lor_vector_insert (lor_vector* vec, int pos, const void* val) {
   // Shift rightwards all elements starting at pos
   if (vec->copy_constructor)
   {
-    void* ptr;
+    char* ptr;
     for (ptr=vec->end; ptr> vec->begin + pos*vec->t_size; ptr -= vec->t_size)
     {
       int cc_return = (*vec->copy_constructor) (ptr - vec->t_size, ptr);
@@ -158,7 +158,7 @@ int lor_vector_insert (lor_vector* vec, int pos, const void* val) {
   }
   else // (no copy constructor specified)
   {
-    void* pos_ptr = vec->begin + pos * vec->t_size;
+    char* pos_ptr = vec->begin + pos * vec->t_size;
     int copy_byte_length = vec->t_size * (lor_vector_size(vec) - pos);
     memmove (pos_ptr + vec->t_size, pos_ptr, copy_byte_length);
   }
@@ -203,7 +203,7 @@ void* lor_vector_auto_reserve (lor_vector* dest) {
 printf ("entering auto_reserve()...");
   // By default, assume that no resizing or relocation will be done-----------|
   int new_alloc_len = dest->alloc_len;
-  void* new_alloc_ptr = dest->begin;
+  char* new_alloc_ptr = dest->begin;
   int array_len = (dest->end - dest->begin) / dest->t_size;
   // Test if more memory needs to be reserved---------------------------------|
   if (array_len == abs(dest->alloc_len))  // note that negative alloc_size
